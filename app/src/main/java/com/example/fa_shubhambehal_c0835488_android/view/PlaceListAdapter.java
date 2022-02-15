@@ -45,11 +45,9 @@ public class PlaceListAdapter extends RecyclerView.Adapter<PlaceListAdapter.View
         viewHolder.clParent.setOnClickListener(view -> listener.onItemClick(place));
         viewHolder.ivEdit.setOnClickListener(view -> listener.onPlaceEdit(place));
         if (place.isVisited) {
-            viewHolder.ivEdit.setVisibility(View.GONE);
             viewHolder.clParent.setBackgroundColor(ContextCompat.getColor(viewHolder.clParent.getContext(), R.color.grey));
             viewHolder.tvVisitStatus.setText("Already visited");
         } else {
-            viewHolder.ivEdit.setVisibility(View.VISIBLE);
             viewHolder.clParent.setBackgroundColor(ContextCompat.getColor(viewHolder.clParent.getContext(), R.color.white));
             viewHolder.tvVisitStatus.setText("Mark as already visited");
             viewHolder.tvVisitStatus.setOnClickListener(view -> listener.onVisitedClick(place.placeId));

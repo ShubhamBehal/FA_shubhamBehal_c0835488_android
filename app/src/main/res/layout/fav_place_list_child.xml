@@ -44,6 +44,7 @@
                 android:layout_marginEnd="10dp"
                 android:importantForAccessibility="no"
                 android:src="@drawable/ic_edit"
+                android:visibility="gone"
                 app:layout_constraintEnd_toStartOf="@id/iv_delete"
                 app:layout_constraintTop_toTopOf="@id/tv_place_name" />
 
@@ -53,6 +54,7 @@
                 android:layout_height="30dp"
                 android:importantForAccessibility="no"
                 android:src="@drawable/ic_delete"
+                android:visibility="gone"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="@id/tv_place_name" />
 

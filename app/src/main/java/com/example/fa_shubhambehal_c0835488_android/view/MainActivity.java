@@ -1,6 +1,7 @@
 package com.example.fa_shubhambehal_c0835488_android.view;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.widget.Button;
 
@@ -40,6 +41,25 @@ public class MainActivity extends AppCompatActivity implements FavPlaceClickList
         });
 
         placeListLiveData.observe(this, placeInfos -> adapter.setData(placeInfos));
+
+        new SwipeHelper(this, rvPlaces) {
+            @Override
+            public void instantiateUnderlayButton(RecyclerView.ViewHolder viewHolder, List<UnderlayButton> underlayButtons) {
+                underlayButtons.add(new SwipeHelper.UnderlayButton(
+                        "Delete",
+                        Color.parseColor("#FF3C30"),
+                        pos -> {
+                            onPlaceDelete(places.get(pos).placeId);
+                        }
+                ));
+
+                underlayButtons.add(new SwipeHelper.UnderlayButton(
+                        "Edit",
+                        Color.parseColor("#FF9502"),
+                        pos -> onPlaceEdit(places.get(pos))
+                ));
+            }
+        };
     }
 
     @Override
