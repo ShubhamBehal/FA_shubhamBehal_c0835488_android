@@ -14,6 +14,7 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -62,6 +63,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
         btnSave = findViewById(R.id.btn_save);
         Button btnNormal = findViewById(R.id.btn_normal);
         Button btnHybrid = findViewById(R.id.btn_hybrid);
+        Button btnSubmit = findViewById(R.id.btn_submit);
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -79,8 +81,47 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
             }
         });
 
+        btnSubmit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                validateAddressAndAddMarker();
+            }
+        });
+
+
         btnNormal.setOnClickListener(view -> mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL));
         btnHybrid.setOnClickListener(view -> mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID));
+    }
+
+    private void validateAddressAndAddMarker() {
+        String address = ((EditText) findViewById(R.id.et_address)).getText().toString().trim();
+        if (address.equalsIgnoreCase("")) {
+            Toast.makeText(this, "The Address cannot be empty", Toast.LENGTH_SHORT).show();
+        } else {
+            markFavOnMap(getLocationFromAddress(this, address));
+        }
+    }
+
+    public LatLng getLocationFromAddress(Context context, String strAddress) {
+        Geocoder coder = new Geocoder(context);
+        List<Address> address;
+        LatLng p1 = null;
+
+        try {
+            address = coder.getFromLocationName(strAddress, 5);
+            if (address == null) {
+                return null;
+            }
+            Address location = address.get(0);
+            location.getLatitude();
+            location.getLongitude();
+
+            p1 = new LatLng(location.getLatitude(), location.getLongitude());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return p1;
+
     }
 
     private void insertFavToRepo() {
