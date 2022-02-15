@@ -137,7 +137,12 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
 
     public void addMarker(Location location, String title) {
         LatLng location1 = new LatLng(location.getLatitude(), location.getLongitude());
-        mMap.addMarker(new MarkerOptions().position(location1).title(title));
+        if(isEdit && !getIntent().getBooleanExtra("isViewOnly", false)){
+            Objects.requireNonNull(mMap.addMarker(new MarkerOptions().position(location1).title(title))).setDraggable(true);
+        }else{
+            Objects.requireNonNull(mMap.addMarker(new MarkerOptions().position(location1).title(title)));
+        }
+
         mMap.moveCamera(CameraUpdateFactory.newLatLng(location1));
     }
 
