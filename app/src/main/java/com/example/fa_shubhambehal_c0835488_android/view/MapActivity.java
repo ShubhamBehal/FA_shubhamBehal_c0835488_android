@@ -43,6 +43,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
+//the user can get directions using the send to google maps app button on bottom right of the map and also the accurate directions.
+
 public class MapActivity extends FragmentActivity implements OnMapReadyCallback {
     LocationManager lm;
     LocationListener ll;
