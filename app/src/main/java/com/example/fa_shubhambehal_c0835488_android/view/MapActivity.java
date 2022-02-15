@@ -12,9 +12,11 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -34,6 +36,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -54,6 +57,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
     private double homeLong;
     private double favLat;
     private double favLong;
+    private TextView tvDistance;
 
 
     @Override
@@ -64,6 +68,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
         Button btnNormal = findViewById(R.id.btn_normal);
         Button btnHybrid = findViewById(R.id.btn_hybrid);
         Button btnSubmit = findViewById(R.id.btn_submit);
+        tvDistance = findViewById(R.id.tv_distance);
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -168,6 +173,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
         }
         if (!intent.getBooleanExtra("isViewOnly", false)) {
             mMap.setOnMapLongClickListener(this::markFavOnMap);
+            findViewById(R.id.group_edit).setVisibility(View.VISIBLE);
         }
     }
 
@@ -195,7 +201,25 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
                                     homeLong))
                             .width(5).color(Color.RED);
             mMap.addPolyline(line);
+            calculateDistance(new LatLng(homeLat, homeLong), new LatLng(favLat, favLong));
         }
+    }
+
+    public void calculateDistance(LatLng StartP, LatLng EndP) {
+        int Radius = 6371;
+        double lat1 = StartP.latitude;
+        double lat2 = EndP.latitude;
+        double lon1 = StartP.longitude;
+        double lon2 = EndP.longitude;
+        double dLat = Math.toRadians(lat2 - lat1);
+        double dLon = Math.toRadians(lon2 - lon1);
+        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) *
+                        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        double c = 2 * Math.asin(Math.sqrt(a));
+        double valueResult = Radius * c;
+        tvDistance.setVisibility(View.VISIBLE);
+        tvDistance.setText("Total distance to travel is : " + valueResult + "KM");
     }
 
     private void markFavOnMap(LatLng latLng) {
