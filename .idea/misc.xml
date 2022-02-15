@@ -8,6 +8,7 @@
         <entry key="app/src/main/res/layout/activity_map.xml" value="0.19610507246376813" />
         <entry key="app/src/main/res/layout/fav_place_list_child.xml" value="0.19610507246376813" />
         <entry key="app/src/main/res/layout/fragment_fav_place.xml" value="0.19610507246376813" />
+        <entry key="app/src/main/res/menu/map_options.xml" value="0.246875" />
       </map>
     </option>
   </component>

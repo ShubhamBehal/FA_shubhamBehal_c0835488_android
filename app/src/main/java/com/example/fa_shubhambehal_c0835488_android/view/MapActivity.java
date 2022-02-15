@@ -5,6 +5,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -30,6 +31,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -47,12 +49,20 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
     private final SingleLiveEvent<Boolean> isSaved = new SingleLiveEvent<>();
     private boolean isEdit;
     private int placeId;
+    private double homeLat;
+    private double homeLong;
+    private double favLat;
+    private double favLong;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
         btnSave = findViewById(R.id.btn_save);
+        Button btnNormal = findViewById(R.id.btn_normal);
+        Button btnHybrid = findViewById(R.id.btn_hybrid);
+
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         if (mapFragment != null) {
@@ -68,6 +78,9 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
                 finish();
             }
         });
+
+        btnNormal.setOnClickListener(view -> mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL));
+        btnHybrid.setOnClickListener(view -> mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID));
     }
 
     private void insertFavToRepo() {
@@ -88,10 +101,11 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
                 lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, ll);
                 Location lastLocation = lm.getLastKnownLocation(LocationManager.GPS_PROVIDER);
                 addMarker(lastLocation, "Your Last Location");
+                homeLat = lastLocation.getLatitude();
+                homeLong = lastLocation.getLongitude();
             }
         }
     }
-
 
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
@@ -107,6 +121,9 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
             placeLocation.setLatitude(place.placeLat);
             placeLocation.setLongitude(place.placeLong);
             addMarker(placeLocation, place.placeName);
+            favLat = place.placeLat;
+            favLong = place.placeLong;
+            drawLine();
         }
         if (!intent.getBooleanExtra("isViewOnly", false)) {
             mMap.setOnMapLongClickListener(this::markFavOnMap);
@@ -115,11 +132,28 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
 
     private void addHomeLocation() {
         lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        ll = location -> addMarker(location, "Your Location");
+        ll = location -> {
+            addMarker(location, "Your Location");
+            homeLat = location.getLatitude();
+            homeLong = location.getLongitude();
+            drawLine();
+        };
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 1);
         } else {
             lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, ll);
+        }
+    }
+
+    private void drawLine() {
+        if (favLat != 0 && favLong != 0 && homeLat != 0 && homeLong != 0) {
+            PolylineOptions line =
+                    new PolylineOptions().add(
+                            new LatLng(favLat, favLong),
+                            new LatLng(homeLat,
+                                    homeLong))
+                            .width(5).color(Color.RED);
+            mMap.addPolyline(line);
         }
     }
 
@@ -148,8 +182,6 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
             mMap.addMarker(new MarkerOptions().position(latLng1).title(location));
             mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng1));
             addHomeLocation();
-
-
             placeInfo = new PlaceInfo(location, latLng.latitude, latLng.longitude, false);
 
             btnSave.setVisibility(View.VISIBLE);
